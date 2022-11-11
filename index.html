@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Chat App</title>
+    <style>
+        body{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: lightgray;
+            padding-top: 6px;
+            /* font-family: 'Roboto'; */
+        }
+        .main-div{
+            margin: 8px;
+            width: 80%;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            border-radius: 12px;
+            height: 80vh;
+        }
+        .heading_div{
+          display: flex;
+          flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 80%;
+        }
+        #heading{
+          color: blue;
+          margin-right: auto;
+        }
+        #messages{
+           width: 80%;
+            flex-grow: 1;
+            border-radius: 12px;
+            list-style: none;
+            overflow-y: scroll;
+            
+        }
+        #messages > li{
+          margin-bottom: 12px;
+          background-color: lightgreen;
+          padding: 8px;
+          padding-left: 16px;
+          padding-right: 16px;
+          border-radius: 8px;
+          font-size: 26px;
+          overflow-wrap: break-word;        
+        }
+        #form{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 4px;
+            height: 40px;
+        }
+        #input{
+            padding-left: 14px;
+            height: 100%;
+            flex-grow: 1;
+            border-right-width: 0px;
+            outline: none;
+            border-width: 0px;
+            background-color: lightgray;
+            border-bottom-left-radius: 6px;
+            border-top-left-radius: 6px;
+        }
+        .btn{
+            height: 100%;
+            width: 20%;
+            background-color: rgb(65, 165, 204);
+            color: #fff;
+            border-width: 0px;
+            outline: none;
+            padding: 8px;
+            margin: 0px;
+            margin-right: 8px;
+            border-bottom-right-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+  <div class="heading_div">
+    
+    <h1 id="heading">My Chat App</h1>
+    <button id="getAll" class="btn">Get All</button>
+    <button id="change_name" class="btn">Change Name</button>
+  </div>
+    <div class="main-div">
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" />
+      <button id="btn" class="btn">Send</button>
+    </form>
+</div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      const socket = io();
+
+      let name = localStorage.getItem("name");
+      console.log(name);
+      
+      if (name === null){
+        name = prompt('What is your name?')
+        localStorage.setItem("name", name);
+      }
+      
+
+  
+
+      var messages = document.getElementById('messages');
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+
+      var btn = document.getElementById('getAll');
+      var changeNameButton = document.getElementById('change_name')
+      changeNameButton.addEventListener('click',()=>{
+        name = prompt('Enter New Name')
+        localStorage.setItem('name',name)
+      })
+
+      btn.onclick = function () {
+        const url = window.location.href
+        location.href = url+'all';
+    };
+
+
+
+      socket.emit('new user', name,(function(){
+        var item = document.createElement('li');
+        item.textContent = 'You Connected';
+        item.style.fontSize = '18px';
+        item.style.color = 'green'; 
+        item.style.backgroundColor = 'white'
+        item.style.textAlign = 'center';
+        messages.appendChild(item);
+      })())
+
+
+  
+      
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value) {
+          var item = document.createElement('li');
+        item.textContent = `You: ${input.value}`;
+        item.style.textAlign = 'right';
+        messages.scrollTop = messages.scrollHeight+10;
+        messages.appendChild(item);
+          socket.emit('chat message', input.value);
+          input.value = '';
+        }
+      });
+
+      socket.on('chat message', (data)=> {
+        var item = document.createElement('li');
+        item.textContent =`${data.name}: ${data.msg}`;
+        messages.scrollTop = messages.scrollHeight;
+        messages.appendChild(item);
+      });
+
+
+      socket.on('user connected', name => {
+        var item = document.createElement('li');
+        item.textContent = `${name} Connected`;
+        item.style.color = 'green'; 
+        item.style.fontSize = '18px';
+        item.style.backgroundColor = 'white'
+        item.style.textAlign = 'center';
+        messages.appendChild(item);
+})
+
+socket.on('user disconnect',name=>{
+  var item = document.createElement('li');
+        item.textContent = `${name} Disonnected`;
+        item.style.color = 'red'; 
+        item.style.fontSize = '18px';
+        item.style.backgroundColor = 'white'
+        item.style.textAlign = 'center';
+        messages.appendChild(item);
+})
+    </script>
+</body>
+</html>
