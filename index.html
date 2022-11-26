@@ -13,7 +13,6 @@
             align-items: center;
             background-color: lightgray;
             padding-top: 6px;
-            /* font-family: 'Roboto'; */
         }
         .main-div{
             margin: 8px;
@@ -95,7 +94,7 @@
   <div class="heading_div">
     
     <h1 id="heading">My Chat App</h1>
-    <button id="getAll" class="btn">Get All</button>
+    <button id="getAll" class="btn">All History</button>
     <button id="change_name" class="btn">Change Name</button>
   </div>
     <div class="main-div">
@@ -152,13 +151,13 @@
 
 
   
-      
+
 
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (input.value) {
           var item = document.createElement('li');
-        item.textContent = `You: ${input.value}`;
+        item.textContent = `${input.value} :You`;
         item.style.textAlign = 'right';
         messages.scrollTop = messages.scrollHeight+10;
         messages.appendChild(item);
